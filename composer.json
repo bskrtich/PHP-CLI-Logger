@@ -1,0 +1,19 @@
+{
+    "name": "bskrtich/phpcli",
+    "type": "library",
+    "description": "PHP CLI Classes",
+    "keywords": ["PHP","cli","log","logging","console"],
+    "homepage": "https://github.com/ReturnPath/phpcli",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Brandon Skrtich",
+            "email": "brandon.skrtich@returnpath.com",
+            "homepage": "http://bearded.io/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    }
+}
