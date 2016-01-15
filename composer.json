@@ -1,5 +1,5 @@
 {
-    "name": "bskrtich/phpcli",
+    "name": "rp/phpcli",
     "type": "library",
     "description": "PHP CLI Classes",
     "keywords": ["PHP","cli","log","logging","console"],
