@@ -13,6 +13,13 @@ $logger = new \rp\phpcli\Logger();
 set_error_handler(array($logger, 'errorHandler'));
 set_exception_handler(array($logger, 'exceptionHandler'));
 
+// Install POSIX signal handlers
+if (extension_loaded('pcntl')) {
+    declare(ticks=100);
+    pcntl_signal(SIGTERM, function($signo) { exit; });
+    pcntl_signal(SIGINT, function($signo) { exit; });
+}
+
 // Disable php script limit for these types of scripts
 set_time_limit(0);
 
@@ -30,6 +37,10 @@ if (getenv('server_env') !== false) {
 
 if (getenv('db_env') !== false) {
     $_GET['db_env'] = getenv('db_env');
+}
+
+if (getenv('db_env_name') !== false) {
+    $_GET['db_env_name'] = getenv('db_env_name');
 }
 
 // General setup
@@ -66,12 +77,15 @@ if (isset($_GET['errlevel'])) {
     $logger->setErrLevel($_GET['errlevel']);
 }
 
-function load_var($name) {
+function load_var($name, $default = null) {
     if (!isset($_GET[$name]) && getenv($name) !== false) {
         $_GET[$name] = getenv($name);
     }
 
     if (isset($_GET[$name])) {
+        return true;
+    } elseif ($default !== null) {
+        $_GET[$name] = $default;
         return true;
     }
     return false;
@@ -81,6 +95,7 @@ function load_var($name) {
 function cli_shutdown() {
     global $logger;
 
+    $logger->log($logger::NOTICE, 'Shutting down');
     $logger->logBreak();
 }
 register_shutdown_function('cli_shutdown');
