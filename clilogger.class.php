@@ -298,11 +298,13 @@ class Logger
         $date = new \DateTime();
         $output = "\n[".$date->format('Y-m-d H:i:s T')."] ".str_pad("[".$this->log_level_name[$level], 7, ' ', STR_PAD_LEFT)."]: ";
 
-        if (isset($vals['file']) && isset($vals['line'])) {
-            $output .= $vals['file'].' ('.$vals['line'].")\n";
+        if (is_array($vals)) {
+            if (isset($vals['file']) && isset($vals['line'])) {
+                $output .= $vals['file'].' ('.$vals['line'].")\n";
+            }
+            if (isset($vals['file'])) unset($vals['file']);
+            if (isset($vals['line'])) unset($vals['line']);
         }
-        if (isset($vals['file'])) unset($vals['file']);
-        if (isset($vals['line'])) unset($vals['line']);
 
         $output .= $msg;
 
@@ -324,6 +326,8 @@ class Logger
 
                     $i++;
                 }
+            } elseif (is_object($vals)) {
+                $output .= "\n".print_r($vals, true);
             } else {
                 $output .= " (".$vals.")";
             }
