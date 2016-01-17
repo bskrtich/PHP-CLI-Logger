@@ -5,7 +5,7 @@ command line and from the web. This should be moved to its own repo to be includ
 **/
 
 // Require and setup the logger class
-require_once 'cli.logger.class.php';
+require_once 'clilogger.class.php';
 
 // Setup the cli logger
 $logger = new \rp\phpcli\Logger();
