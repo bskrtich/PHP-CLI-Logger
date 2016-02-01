@@ -13,6 +13,8 @@ $logger = new \rp\phpcli\Logger();
 set_error_handler(array($logger, 'errorHandler'));
 set_exception_handler(array($logger, 'exceptionHandler'));
 
+$logger->setTimeZone(new \DateTimeZone('America/Denver'));
+
 // Install POSIX signal handlers
 if (extension_loaded('pcntl')) {
     declare(ticks=100);

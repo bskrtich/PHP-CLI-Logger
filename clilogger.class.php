@@ -44,6 +44,16 @@ class Logger
 
     private $var_padding = 15;
 
+    private $timezone;
+
+    public function __construct() {
+        $timezone = new \DateTimeZone('UTC');
+    }
+
+    public function setTimeZone($value) {
+        $timezone = $value;
+    }
+
     public function setLogLevel($value) {
         $value = (int)$value;
         if (self::DEBUG <= $value && $value <= self::DISABLE) {
@@ -295,7 +305,7 @@ class Logger
     // Format and output to stdout/stderr
     public function log($level = self::INFO, $msg, $vals = null)
     {
-        $date = new \DateTime();
+        $date = new \DateTime("now", $this->timezone);
         $output = "\n[".$date->format('Y-m-d H:i:s T')."] ".str_pad("[".$this->log_level_name[$level], 7, ' ', STR_PAD_LEFT)."]: ";
 
         if (is_array($vals)) {
