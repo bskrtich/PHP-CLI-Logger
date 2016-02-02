@@ -322,6 +322,12 @@ class Logger
             if (is_array($vals)) {
                 $i = 0;
                 foreach ($vals as $key => $value) {
+                    // Check for object
+                    if (is_object($value)) {
+                        $output .= "\n".print_r($vals, true);
+                        continue;
+                    }
+                    
                     // Check for sub array
                     if (is_array($value)) {
                         $value = implode('`, `', $value);
