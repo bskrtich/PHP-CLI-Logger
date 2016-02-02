@@ -10,8 +10,15 @@ You just need to [add dependency](https://getcomposer.org/doc/04-schema.md#packa
 Example:
 ```json
 {
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ReturnPath/phpcli.git"
+        }
+    ],
     "require": {
-       "rp/phpcli": "~v1.0"
+        "nategood/httpful": "*",
+        "rp/phpcli": "~v1.0"
     }
 }
 ```
