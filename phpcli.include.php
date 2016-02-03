@@ -32,18 +32,14 @@ if (php_sapi_name() == 'cli') {
     define("PHP_CLI", false);
 }
 
-// Set default env's from the environment
-if (getenv('server_env') !== false) {
-    $_GET['server_env'] = getenv('server_env');
-}
+// On script end, add new lines
+function cli_shutdown() {
+    global $logger;
 
-if (getenv('db_env') !== false) {
-    $_GET['db_env'] = getenv('db_env');
+    $logger->log($logger::NOTICE, 'Shutting down');
+    $logger->logBreak();
 }
-
-if (getenv('db_env_name') !== false) {
-    $_GET['db_env_name'] = getenv('db_env_name');
-}
+register_shutdown_function('cli_shutdown');
 
 // General setup
 if (PHP_CLI) {
@@ -66,38 +62,36 @@ if (PHP_CLI) {
     echo "\n<pre>";
 }
 
-// Tell the logger to log debug message
-if (isset($_GET['debug'])) {
-    $logger->setLogLevel(0);
-}
-
-if (isset($_GET['loglevel'])) {
-    $logger->setLogLevel($_GET['loglevel']);
-}
-
-if (isset($_GET['errlevel'])) {
-    $logger->setErrLevel($_GET['errlevel']);
-}
-
-function load_var($name, $default = null) {
+// Default way to load variables from the env or set a default
+function load_var($name, $default_value = null) {
     if (!isset($_GET[$name]) && getenv($name) !== false) {
         $_GET[$name] = getenv($name);
     }
 
-    if (isset($_GET[$name])) {
-        return true;
-    } elseif ($default !== null) {
-        $_GET[$name] = $default;
-        return true;
+    if (!isset($_GET[$name]) && $default_value !== null) {
+        $_GET[$name] = $default_value;
     }
-    return false;
+
+    return isset($_GET[$name]);
 }
 
-// On script end, add new lines
-function cli_shutdown() {
-    global $logger;
+// Set default env's from the environment
+load_var('server_env');
+load_var('db_env');
+load_var('db_env_name');
 
-    $logger->log($logger::NOTICE, 'Shutting down');
-    $logger->logBreak();
+// Tell the logger to log debug message
+load_var('debug');
+if (isset($_GET['debug'])) {
+    $logger->setLogLevel(0);
 }
-register_shutdown_function('cli_shutdown');
+
+load_var('loglevel');
+if (isset($_GET['loglevel'])) {
+    $logger->setLogLevel($_GET['loglevel']);
+}
+
+load_var('errlevel');
+if (isset($_GET['errlevel'])) {
+    $logger->setErrLevel($_GET['errlevel']);
+}
