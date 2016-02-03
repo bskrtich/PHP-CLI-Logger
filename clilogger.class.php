@@ -47,11 +47,11 @@ class Logger
     private $timezone;
 
     public function __construct() {
-        $timezone = new \DateTimeZone('UTC');
+        $this->timezone = new \DateTimeZone('UTC');
     }
 
     public function setTimeZone($value) {
-        $timezone = $value;
+        $this->timezone = $value;
     }
 
     public function setLogLevel($value) {
