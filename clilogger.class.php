@@ -319,30 +319,7 @@ class Logger
         $output .= $msg;
 
         if (!empty($vals)) {
-            if (is_array($vals)) {
-                $i = 0;
-                foreach ($vals as $key => $value) {
-                    // Check for object
-                    if (is_object($value)) {
-                        $output .= "\n".print_r($vals, true);
-                        continue;
-                    }
-                    
-                    // Check for sub array
-                    if (is_array($value)) {
-                        $value = implode('`, `', $value);
-                    }
-
-                    // If the key is numeric and is in order, don't display the key
-                    if ($key === $i) {
-                        $output .= "\n`".$value."`";
-                    } else {
-                        $output .= "\n".str_pad($key.": ", $this->var_padding)."`".$value."`";
-                    }
-
-                    $i++;
-                }
-            } elseif (is_object($vals)) {
+            if (is_array($vals) || is_object($vals)) {
                 $output .= "\n".print_r($vals, true);
             } else {
                 $output .= " (".$vals.")";
