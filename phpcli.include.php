@@ -18,8 +18,20 @@ $logger->setTimeZone(new \DateTimeZone('America/Denver'));
 // Install POSIX signal handlers
 if (extension_loaded('pcntl')) {
     declare(ticks=100);
-    pcntl_signal(SIGTERM, function($signo) { exit; });
-    pcntl_signal(SIGINT, function($signo) { exit; });
+    pcntl_signal(SIGTERM, function($signo) {
+        global $logger;
+
+        $logger->log($logger::NOTICE, 'SIGTERM Received');
+
+        exit;
+    });
+    pcntl_signal(SIGINT, function($signo) {
+        global $logger;
+
+        $logger->log($logger::NOTICE, 'SIGINT Received');
+
+        exit;
+    });
 }
 
 // Disable php script limit for these types of scripts
