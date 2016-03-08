@@ -47,6 +47,10 @@ class Logger
     private $timezone;
 
     public function __construct() {
+        if(!defined('STDIN'))  define('STDIN',  fopen('php://stdin',  'r'));
+        if(!defined('STDOUT')) define('STDOUT', fopen('php://stdout', 'w'));
+        if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
+        
         $this->timezone = new \DateTimeZone('UTC');
     }
 
