@@ -45,13 +45,15 @@ if (php_sapi_name() == 'cli') {
 }
 
 // On script end, add new lines
-function cli_shutdown() {
-    global $logger;
+if (!defined('DISABLE_CLI_SHUTDOWN')) {
+    function cli_shutdown() {
+        global $logger;
 
-    $logger->log($logger::NOTICE, 'Shutting down');
-    $logger->logBreak();
+        $logger->log($logger::NOTICE, 'Shutting down');
+        $logger->logBreak();
+    }
+    register_shutdown_function('cli_shutdown');
 }
-register_shutdown_function('cli_shutdown');
 
 // General setup
 if (PHP_CLI) {
