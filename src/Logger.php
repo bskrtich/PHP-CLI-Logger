@@ -3,11 +3,10 @@ namespace rp\phpcli;
 
 class Logger
 {
-
     // Log Levels
     const DEBUG   = 0; // Debug information only
     const INFO    = 1; // General information from the script like whats going on and variables
-    const NOTICE  = 2; // For such msgs as script start/end
+    const NOTICE  = 2; // For such messages as script start/end
     const WARNING = 3; // General warnings
     const ERROR   = 4; // Error messages
     const FATAL   = 5; // Fatal, end script
@@ -66,6 +65,8 @@ class Logger
         if (!defined('STDOUT')) define('STDOUT', fopen('php://stdout', 'w'));
         if (!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
 
+        $this->is_cli = (php_sapi_name() == 'cli');
+
         // Setup needed error handling
         $this->init_enable_pcntl();
         if (!defined('DISABLE_CLI_SHUTDOWN')) {
@@ -74,7 +75,7 @@ class Logger
         set_error_handler(array($this, 'errorHandler'));
         set_exception_handler(array($this, 'exceptionHandler'));
 
-        if (php_sapi_name() == 'cli') {
+        if ($this->is_cli) {
             ini_set('display_errors', 'stderr');
             error_reporting(-1);
         }
@@ -87,17 +88,17 @@ class Logger
         $this->load_cli_parameters();
 
         // Tell the logger to log debug message
-        load_var('debug');
+        $this::load_var('debug');
         if (isset($_GET['debug'])) {
             $this->setLogLevel(0);
         }
 
-        load_var('loglevel');
+        $this::load_var('loglevel');
         if (isset($_GET['loglevel'])) {
             $this->setLogLevel($_GET['loglevel']);
         }
 
-        load_var('errlevel');
+        $this::load_var('errlevel');
         if (isset($_GET['errlevel'])) {
             $this->setErrLevel($_GET['errlevel']);
         }
@@ -129,8 +130,11 @@ class Logger
         }
     }
 
-    public static function load_cli_parameters() {
-        if (php_sapi_name() != 'cli') {
+    public function load_cli_parameters() {
+        global $argv;
+
+        // This only works when running as CLI
+        if (!$this->is_cli) {
             return;
         }
 

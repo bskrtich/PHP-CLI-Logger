@@ -17,8 +17,7 @@ Example:
         }
     ],
     "require": {
-        "nategood/httpful": "*",
-        "rp/phpcli": "~v1.0"
+        "rp/phpcli": "~v2.0"
     }
 }
 ```
@@ -30,7 +29,7 @@ $logger = new \rp\phpcli\Logger();
 $logger->setTimeZone(new \DateTimeZone('America/Denver'));
 
 // Set default env's from the environment
-load_var('server_env');
-load_var('db_env');
-load_var('db_env_name');
+$logger::load_var('server_env');
+$logger::load_var('db_env');
+$logger::load_var('db_env_name');
 ```
