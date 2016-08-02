@@ -22,3 +22,15 @@ Example:
     }
 }
 ```
+
+Example Use:
+```php
+// Setup the cli logger
+$logger = new \rp\phpcli\Logger();
+$logger->setTimeZone(new \DateTimeZone('America/Denver'));
+
+// Set default env's from the environment
+load_var('server_env');
+load_var('db_env');
+load_var('db_env_name');
+```

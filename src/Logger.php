@@ -46,12 +46,110 @@ class Logger
 
     private $timezone;
 
+
+    public static function load_var($name, $default_value = null) {
+        if (!isset($_GET[$name]) && getenv($name) !== false) {
+            $_GET[$name] = getenv($name);
+        }
+
+        if (!isset($_GET[$name]) && $default_value !== null) {
+            $_GET[$name] = $default_value;
+        }
+
+        return isset($_GET[$name]);
+    }
+
+
     public function __construct() {
-        if(!defined('STDIN'))  define('STDIN',  fopen('php://stdin',  'r'));
-        if(!defined('STDOUT')) define('STDOUT', fopen('php://stdout', 'w'));
-        if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
-        
+        // Make sure we have the standard global in's and out's
+        if (!defined('STDIN'))  define('STDIN',  fopen('php://stdin',  'r'));
+        if (!defined('STDOUT')) define('STDOUT', fopen('php://stdout', 'w'));
+        if (!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
+
+        // Setup needed error handling
+        $this->init_enable_pcntl();
+        if (!defined('DISABLE_CLI_SHUTDOWN')) {
+            register_shutdown_function(array($this, 'app_shutdown'));
+        }
+        set_error_handler(array($this, 'errorHandler'));
+        set_exception_handler(array($this, 'exceptionHandler'));
+
+        if (php_sapi_name() == 'cli') {
+            ini_set('display_errors', 'stderr');
+            error_reporting(-1);
+        }
+
+        if (!headers_sent()) {
+            header('Content-type: text/html; charset=utf-8');
+        }
+
+        // Load command line vars
+        $this->load_cli_parameters();
+
+        // Tell the logger to log debug message
+        load_var('debug');
+        if (isset($_GET['debug'])) {
+            $this->setLogLevel(0);
+        }
+
+        load_var('loglevel');
+        if (isset($_GET['loglevel'])) {
+            $this->setLogLevel($_GET['loglevel']);
+        }
+
+        load_var('errlevel');
+        if (isset($_GET['errlevel'])) {
+            $this->setErrLevel($_GET['errlevel']);
+        }
+
+        // Default values
         $this->timezone = new \DateTimeZone('UTC');
+    }
+
+    public function init_enable_pcntl() {
+        // Install POSIX signal handlers
+        if (extension_loaded('pcntl')) {
+            declare(ticks=100);
+
+            pcntl_signal(SIGTERM, function($signo) {
+                global $this;
+
+                $this->log($this::NOTICE, 'SIGTERM Received');
+
+                exit;
+            });
+
+            pcntl_signal(SIGINT, function($signo) {
+                global $this;
+
+                $this->log($this::NOTICE, 'SIGINT Received');
+
+                exit;
+            });
+        }
+    }
+
+    public static function load_cli_parameters() {
+        if (php_sapi_name() != 'cli') {
+            return;
+        }
+
+        // Pull out command line parameters and put in in to $_GET
+        foreach ($argv as $arg) {
+            $e = explode("=", $arg);
+            if (count($e) == 2) {
+                $_GET[$e[0]] = $e[1];
+            } else {
+                $_GET[$e[0]] = 0;
+            }
+        }
+    }
+
+    public function app_shutdown() {
+        global $logger;
+
+        $logger->log($logger::NOTICE, 'Shutting down');
+        $logger->logBreak();
     }
 
     public function setTimeZone($value) {
