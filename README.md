@@ -17,7 +17,7 @@ Example:
         }
     ],
     "require": {
-        "rp/phpcli": "~v2.0"
+        "rp/phpcli": "~v1.1"
     }
 }
 ```
