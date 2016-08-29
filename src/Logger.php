@@ -45,6 +45,11 @@ class Logger
 
     private $timezone;
 
+    const DT_FORMAT_DEFAULT = 'c';
+    const DT_FORMAT_READABLE = 'Y-m-d H:i:s T';
+
+    private $datetime_format = self::DT_FORMAT_DEFAULT;
+
 
     public static function load_var($name, $default_value = null) {
         if (!isset($_GET[$name]) && getenv($name) !== false) {
@@ -178,6 +183,14 @@ class Logger
         $value = (int)$value;
         if ($value > 0) {
             $this->var_padding = $value;
+        }
+    }
+
+    public function setDatetimeFormat($value = null) {
+        if ($value) {
+            $this->datetime_format = $value;
+        } else {
+            $this->datetime_format = self::DT_FORMAT_DEFAULT;
         }
     }
 
@@ -412,7 +425,7 @@ class Logger
     public function log($level = self::INFO, $msg, $vals = null)
     {
         $date = new \DateTime("now", $this->timezone);
-        $output = "\n[".$date->format('Y-m-d H:i:s T')."] ".str_pad("[".$this->log_level_name[$level], 7, ' ', STR_PAD_LEFT)."]: ";
+        $output = "\n[".$date->format($this->datetime_format)."] ".str_pad("[".$this->log_level_name[$level], 7, ' ', STR_PAD_LEFT)."]: ";
 
         if (is_array($vals)) {
             if (isset($vals['file']) && isset($vals['line'])) {
