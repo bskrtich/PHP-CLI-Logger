@@ -118,16 +118,12 @@ class Logger
             declare(ticks=100);
 
             pcntl_signal(SIGTERM, function($signo) {
-                global $this;
-
                 $this->log($this::NOTICE, 'SIGTERM Received');
 
                 exit;
             });
 
             pcntl_signal(SIGINT, function($signo) {
-                global $this;
-
                 $this->log($this::NOTICE, 'SIGINT Received');
 
                 exit;
