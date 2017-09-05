@@ -1,14 +1,14 @@
 {
-    "name": "rp/phpcli",
+    "name": "bskrtich/phpcli",
     "type": "library",
     "description": "PHP CLI Classes",
     "keywords": ["PHP","cli","log","logging","console"],
-    "homepage": "https://github.com/ReturnPath/phpcli",
+    "homepage": "https://github.com/bskrtich/phpcli",
     "license": "MIT",
     "authors": [
         {
             "name": "Brandon Skrtich",
-            "email": "brandon.skrtich@returnpath.com",
+            "email": "bskrtich@gmail.com.com",
             "role": "Developer"
         }
     ],
@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "rp\\phpcli\\": "src/"
+            "bskrtich\\phpcli\\": "src/"
         }
     }
 }

@@ -13,11 +13,11 @@ Example:
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/ReturnPath/phpcli.git"
+            "url": "https://github.com/bskrtich/phpcli.git"
         }
     ],
     "require": {
-        "rp/phpcli": "~v1.1"
+        "bskrtich/phpcli": "~v1.1"
     }
 }
 ```
@@ -25,7 +25,7 @@ Example:
 Example Use:
 ```php
 // Setup the cli logger
-$logger = new \rp\phpcli\Logger();
+$logger = new \bskrtich\phpcli\Logger();
 $logger->setTimeZone(new \DateTimeZone('America/Denver'));
 
 // Set default env's from the environment

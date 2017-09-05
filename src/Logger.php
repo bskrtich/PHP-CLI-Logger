@@ -1,5 +1,5 @@
 <?php
-namespace rp\phpcli;
+namespace bskrtich\phpcli;
 
 class Logger
 {
