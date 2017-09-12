@@ -407,10 +407,7 @@ class Logger
     }
 
     // Add a line break to the log
-    public function logEcho($level = STDOUT, $text, $newline = true) {
-        if ($newline) {
-            $text = "\n".$text;
-        }
+    public function logEcho($level = STDOUT, $text) {
         $this->outputToLog($level, $text);
     }
 
@@ -423,7 +420,12 @@ class Logger
     public function log($level = self::INFO, $msg, $vals = null)
     {
         $date = new \DateTime("now", $this->timezone);
-        $output = "\n[".$date->format($this->datetime_format)."] ".str_pad("[".$this->log_level_name[$level], 7, ' ', STR_PAD_LEFT)."]: ";
+
+        $output = "\n";
+        if ($this->is_cli || !ini_get('display_errors')) {
+            $output .= '['.$date->format($this->datetime_format).'] ';
+        }
+        $output .= str_pad("[".$this->log_level_name[$level], 7, ' ', STR_PAD_LEFT)."]: ";
 
         if (is_array($vals)) {
             if (isset($vals['file']) && isset($vals['line'])) {
@@ -447,6 +449,11 @@ class Logger
     }
 
     private function outputToLog($level = self::INFO, $text) {
+        if (!$this->is_cli && ini_get('display_errors')) {
+            echo $text;
+            return;
+        }
+
         if ($level === STDOUT || $level === STDERR) {
             fwrite($level, $text);
             return;
