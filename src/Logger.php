@@ -72,18 +72,20 @@ class Logger
 
         $this->is_cli = (php_sapi_name() == 'cli');
 
-        // Setup needed error handling
-        $this->init_enable_pcntl();
-        if (!defined('DISABLE_CLI_SHUTDOWN')) {
-            register_shutdown_function(array($this, 'app_shutdown'));
-        }
-        set_error_handler(array($this, 'errorHandler'));
-        set_exception_handler(array($this, 'exceptionHandler'));
-
+        // Setup cli settings
         if ($this->is_cli) {
+            $this->init_enable_pcntl();
+            if (!defined('DISABLE_CLI_SHUTDOWN')) {
+                register_shutdown_function(array($this, 'app_shutdown'));
+            }
+
             ini_set('display_errors', 'stderr');
             error_reporting(-1);
         }
+
+        // Setup needed error handling
+        set_error_handler(array($this, 'errorHandler'));
+        set_exception_handler(array($this, 'exceptionHandler'));
 
         if (!headers_sent()) {
             header('Content-type: text/html; charset=utf-8');
