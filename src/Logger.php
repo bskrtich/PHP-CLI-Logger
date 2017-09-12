@@ -259,8 +259,7 @@ class Logger
     // Return: string
     private function getDebugValStr()
     {
-
-        $vals = '';
+        $vals = false;
 
         if (!empty(self::$debug_vals)) {
             foreach (self::$debug_vals as $key => $value) {
@@ -274,6 +273,7 @@ class Logger
             }
             $vals = substr($vals, 0, (strlen($vals)-2));
         }
+
         return $vals;
     }
 
@@ -322,35 +322,37 @@ class Logger
         // If fatal or error, throw an exception, which always stops script execution
         if ($error['level'] == self::FATAL || $error['level'] == self::ERROR) {
             throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-        } else {
-            $error['type'] = self::getErrorType($errno);
-            $error['info'] = self::getDebugValStr();
-            $error['file'] = $errfile;
-            $error['line'] = $errline;
-
-            $backtrace = debug_backtrace();
-
-            //find true error from back-trace, replace error if it's different
-            $origin_key = self::findErrorOrigin($backtrace);
-            if (isset($backtrace[$origin_key]['file']) &&
-                    isset($backtrace[$origin_key]['line']) &&
-                    $backtrace[$origin_key]['file']!=$error['file'] &&
-                    $backtrace[$origin_key]['line']!=$error['line']) {
-                $origin_file = $backtrace[$origin_key]['file'];
-                $origin_line = $backtrace[$origin_key]['line'];
-            }
-
-            //if this is a warning (or below), just log it and return, don't stop script execution
-            $log_vals['file'] = $error['file'];
-            $log_vals['line'] = $error['line'];
-            if (isset($origin_file)) {
-                $log_vals['origin'] = "$origin_file($origin_line)";
-            }
-            $log_vals['info'] = self::getDebugValStr();
-            self::log($error['level'], $errstr, $log_vals);
-
             return;
         }
+
+        $error['type'] = self::getErrorType($errno);
+        $error['info'] = self::getDebugValStr();
+        $error['file'] = $errfile;
+        $error['line'] = $errline;
+
+        $backtrace = debug_backtrace();
+
+        //find true error from back-trace, replace error if it's different
+        $origin_key = self::findErrorOrigin($backtrace);
+        if (isset($backtrace[$origin_key]['file']) &&
+                isset($backtrace[$origin_key]['line']) &&
+                $backtrace[$origin_key]['file']!=$error['file'] &&
+                $backtrace[$origin_key]['line']!=$error['line']) {
+            $origin_file = $backtrace[$origin_key]['file'];
+            $origin_line = $backtrace[$origin_key]['line'];
+        }
+
+        $msg = $error['file'].' ('.$error['line'].') - '.$error['error'];
+        if (isset($origin_file)) {
+            $msg .= "\nError Origin: ".$origin_file.' ('.$origin_line.')';
+        }
+        if (!empty($error['info'])) {
+            $msg .= "\nInfo: ".$error['info'];
+        }
+
+        self::log($error['level'], $msg);
+
+        return;
     }
 
     // Logger exception handler
@@ -376,15 +378,15 @@ class Logger
             $origin_line = $backtrace[$origin_key]['line'];
         }
 
-        // Set values for logging
-        $log_vals['file'] = $error['file'];
-        $log_vals['line'] = $error['line'];
+        $msg = $error['file'].' ('.$error['line'].') - '.$error['error'];
         if (isset($origin_file)) {
-            $log_vals['origin'] = "$origin_file($origin_line)";
+            $msg .= "\nError Origin: ".$origin_file.' ('.$origin_line.')';
         }
-        $log_vals['info'] = $error['info'];
+        if (!empty($error['info'])) {
+            $msg .= "\nInfo: ".$error['info'];
+        }
 
-        self::log($error['level'], $error['error'], $log_vals);
+        self::log($error['level'], $msg);
 
         exit();
     }
@@ -421,20 +423,11 @@ class Logger
     {
         $date = new \DateTime("now", $this->timezone);
 
-        $output = "\n";
+        $output = '';
         if ($this->is_cli || !ini_get('display_errors')) {
             $output .= '['.$date->format($this->datetime_format).'] ';
         }
         $output .= str_pad("[".$this->log_level_name[$level], 7, ' ', STR_PAD_LEFT)."]: ";
-
-        if (is_array($vals)) {
-            if (isset($vals['file']) && isset($vals['line'])) {
-                $output .= $vals['file'].' ('.$vals['line'].")\n";
-            }
-            if (isset($vals['file'])) unset($vals['file']);
-            if (isset($vals['line'])) unset($vals['line']);
-        }
-
         $output .= $msg;
 
         if (!empty($vals)) {
@@ -450,9 +443,15 @@ class Logger
 
     private function outputToLog($level = self::INFO, $text) {
         if (!$this->is_cli && ini_get('display_errors')) {
-            echo $text;
+            if (ini_get('html_errors')) {
+                echo nl2br($text."\n\n");
+            } else {
+                echo $text;
+            }
             return;
         }
+
+        $text = "\n".$text;
 
         if ($level === STDOUT || $level === STDERR) {
             fwrite($level, $text);
